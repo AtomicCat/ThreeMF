@@ -1,19 +1,19 @@
 {
-  "originHash" : "215de2f6bde458f08dfae0560a9e8625831412c05b74fddc6c65104d069add37",
+  "originHash" : "e2b7aa3e31b173fb49dcb95ed787cad4f7771f9ff927e39a7f03141f9a22be35",
   "pins" : [
     {
       "identity" : "nodal",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tomasf/Nodal.git",
+      "location" : "https://github.com/atomiccat/Nodal.git",
       "state" : {
-        "revision" : "c063344c9679f327de484f3595a8dcf97f35db8a",
-        "version" : "1.0.0"
+        "branch" : "performance",
+        "revision" : "3600cd92803359878d58fad14bca5a214aa8a920"
       }
     },
     {
       "identity" : "zip",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tomasf/Zip.git",
+      "location" : "https://github.com/atomiccat/Zip.git",
       "state" : {
         "revision" : "89a20ecc82eddf3d1cb40b55e2143167ee4367d3",
         "version" : "2.1.1"
