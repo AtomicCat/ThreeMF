@@ -188,72 +188,72 @@ public extension ModelLoader {
         ///   - _: The identifier of the missing object.
         case objectNotFound (modelPath: URL?, ResourceID)
     }
+}
 
-    /// A flattened, render‑ready representation of a 3MF package after loading and resolution.
+/// A flattened, render‑ready representation of a 3MF package after loading and resolution.
+///
+/// LoadedModel contains:
+/// - The root model that initiated loading
+/// - All additional models that were referenced
+/// - A deduplicated array of meshes with stable indices
+/// - Items expanded into components that reference meshes and carry transforms and properties
+public struct LoadedModel: Sendable {
+    /// The parsed root model.
+    public let rootModel: Model
+
+    /// The set of referenced models, ordered to align with `LoadedMesh.modelIndex`.
     ///
-    /// LoadedModel contains:
-    /// - The root model that initiated loading
-    /// - All additional models that were referenced
-    /// - A deduplicated array of meshes with stable indices
-    /// - Items expanded into components that reference meshes and carry transforms and properties
-    struct LoadedModel: Sendable {
-        /// The parsed root model.
-        public let rootModel: Model
+    /// Note: The root model is not included here; it is available via `rootModel`.
+    public let models: [Model]
 
-        /// The set of referenced models, ordered to align with `LoadedMesh.modelIndex`.
-        ///
-        /// Note: The root model is not included here; it is available via `rootModel`.
-        public let models: [Model]
+    /// The deduplicated meshes referenced by items/components.
+    ///
+    /// Each mesh has a stable `modelIndex` that points back to an entry in `models`.
+    public let meshes: [LoadedMesh]
 
-        /// The deduplicated meshes referenced by items/components.
-        ///
-        /// Each mesh has a stable `modelIndex` that points back to an entry in `models`.
-        public let meshes: [LoadedMesh]
+    /// The build items from the root model, expanded into concrete components referencing meshes.
+    public let items: [LoadedItem]
 
-        /// The build items from the root model, expanded into concrete components referencing meshes.
-        public let items: [LoadedItem]
+    /// A mesh paired with the index of the model it came from.
+    public struct LoadedMesh: Sendable {
+        /// The mesh geometry.
+        public let mesh: Mesh
 
-        /// A mesh paired with the index of the model it came from.
-        public struct LoadedMesh: Sendable {
-            /// The mesh geometry.
-            public let mesh: Mesh
+        /// The index of the model in `LoadedModel.models` that contains this mesh.
+        public let modelIndex: Int
+    }
 
-            /// The index of the model in `LoadedModel.models` that contains this mesh.
-            public let modelIndex: Int
-        }
+    /// An item from the root model with its resolved components.
+    public struct LoadedItem: Sendable {
+        /// The original item from the root model's build.
+        public let item: Item
 
-        /// An item from the root model with its resolved components.
-        public struct LoadedItem: Sendable {
-            /// The original item from the root model's build.
-            public let item: Item
+        /// The object referenced by `item`, as defined in the corresponding model.
+        public let rootObject: Object
 
-            /// The object referenced by `item`, as defined in the corresponding model.
-            public let rootObject: Object
+        /// The concrete components of this item, each referencing a mesh and carrying transforms and metadata.
+        public let components: [LoadedComponent]
+    }
 
-            /// The concrete components of this item, each referencing a mesh and carrying transforms and metadata.
-            public let components: [LoadedComponent]
-        }
+    /// A concrete component that references a mesh and carries transforms, properties, and metadata.
+    public struct LoadedComponent: Sendable {
+        /// The index into `LoadedModel.meshes` for the referenced mesh.
+        public let meshIndex: Int
 
-        /// A concrete component that references a mesh and carries transforms, properties, and metadata.
-        public struct LoadedComponent: Sendable {
-            /// The index into `LoadedModel.meshes` for the referenced mesh.
-            public let meshIndex: Int
+        /// The transforms to apply to the mesh, in order from parent to child.
+        public let transforms: [Matrix3D]
 
-            /// The transforms to apply to the mesh, in order from parent to child.
-            public let transforms: [Matrix3D]
+        /// The property group identifier, if any, associated with this component.
+        public let propertyGroupID: ResourceID?
 
-            /// The property group identifier, if any, associated with this component.
-            public let propertyGroupID: ResourceID?
+        /// The property index within the property group, if any.
+        public let propertyIndex: ResourceIndex?
 
-            /// The property index within the property group, if any.
-            public let propertyIndex: ResourceIndex?
+        /// The accumulated names along the reference path, from parent to child.
+        public var names: [String]
 
-            /// The accumulated names along the reference path, from parent to child.
-            public var names: [String]
-
-            /// The accumulated part numbers along the reference path, from parent to child.
-            public var partNumbers: [String]
-        }
+        /// The accumulated part numbers along the reference path, from parent to child.
+        public var partNumbers: [String]
     }
 }
 
